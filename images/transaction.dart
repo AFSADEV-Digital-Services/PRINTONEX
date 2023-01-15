@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-class OrderHistory extends StatefulWidget {
-  const OrderHistory({Key? key}) : super(key: key);
+class Transaction extends StatefulWidget {
+  const Transaction({Key? key}) : super(key: key);
 
   @override
-  State<OrderHistory> createState() => _OrderHistoryState();
+  State<Transaction> createState() => _TransactionState();
 }
 class Item {
   final String name;
@@ -23,7 +23,7 @@ class Item {
         required this.address,
         required this.cancelOder});
 }
-class _OrderHistoryState extends State<OrderHistory>  {
+class _TransactionState extends State<Transaction>  {
   List list = ['12', '11'];
   bool checkboxValueA = true;
   bool checkboxValueB = false;
@@ -87,7 +87,7 @@ class _OrderHistoryState extends State<OrderHistory>  {
 
     final Orientation orientation = MediaQuery.of(context).orientation;
     return Scaffold(
-        backgroundColor: Colors.white,
+      backgroundColor: Colors.white,
         key: _scaffoldKey,
         appBar: AppBar(
           shape: RoundedRectangleBorder(

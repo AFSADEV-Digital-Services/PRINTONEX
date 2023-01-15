@@ -10,14 +10,16 @@ import 'package:printonex_final/consts/reusable_widget.dart';
 import 'package:printonex_final/consts/text_class.dart';
 import 'package:printonex_final/consts/filepicker.dart';
 import 'package:printonex_final/consts/errormsg.dart';
-class Settings extends StatefulWidget {
-  const Settings({Key? key}) : super(key: key);
+import 'package:printonex_final/views/auth_pages/login.dart';
+import 'package:printonex_final/views/widgets/errorWidget.dart';
+class Profile extends StatefulWidget {
+  const Profile({Key? key}) : super(key: key);
 
   @override
-  State<Settings> createState() => _SettingsState();
+  State<Profile> createState() => _ProfileState();
 }
 
-class _SettingsState extends State<Settings> {
+class _ProfileState extends State<Profile> {
 
 
 
@@ -39,7 +41,7 @@ class _SettingsState extends State<Settings> {
     super.initState();
 
   }
-
+  bool _isSigningOut = false;
   @override
   Widget build(BuildContext context) {
     User? user = FirebaseAuth.instance.currentUser;
@@ -51,10 +53,22 @@ class _SettingsState extends State<Settings> {
         child: Stack(
           children: [
             InkWell(
-              onTap: (){
-
+              onTap: () async {
+                setState(() {
+                  _isSigningOut = true;
+                });
+                await FirebaseAuth.instance.signOut();
+                setState(() {
+                  _isSigningOut = false;
+                });
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => LoginPage(),
+                  ),
+                );
               },
-              child: Positioned(
+              child:  _isSigningOut
+                  ? CircularProgressIndicator():Positioned(
                 left: ResponsiveFile.height220,
                 bottom: ResponsiveFile.height8,
                 child: Container(
@@ -81,7 +95,18 @@ class _SettingsState extends State<Settings> {
 
             InkWell(
               onTap: () async{
+                setState(() {
+                  _isSigningOut = true;
+                });
                 await FirebaseAuth.instance.signOut();
+                setState(() {
+                  _isSigningOut = false;
+                });
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => LoginPage(),
+                  ),
+                );
               },
               child: Container(
                 padding: EdgeInsets.all(ResponsiveFile.height20),
@@ -159,13 +184,13 @@ class _SettingsState extends State<Settings> {
                           backgroundColor: Colors.white,
                           radius:
                               ResponsiveFile.height50 + ResponsiveFile.height10,
-                          child: user.uid.isEmpty
+                          child: user.photoURL!=null
                               ? Padding(
                                   padding:
                                       EdgeInsets.all(ResponsiveFile.height10),
-                                  child: Image.asset("assets/logo/logo.png"),
+                                  child: Image.asset("images/logo.png"),
                                 )
-                              : Image.asset("assets/logo/logo.png"),
+                              : Image.asset("images/logo.png"),
                         ),
                         Positioned(
                           bottom: 0,
@@ -179,20 +204,19 @@ class _SettingsState extends State<Settings> {
                               shape: BoxShape.circle,
                               color: Colors.white,
                             ),
-                            child: InkWell(
-                              onTap: () {
-                                Upload.pickfile();
-                              },
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                    shape: BoxShape.circle, color: Colors.white),
-                                child: IconButton(
-                                  icon: Icon(
-                                    Icons.camera_alt_outlined,
-                                    size: ResponsiveFile.height20,
-                                  ),
-                                  onPressed: () {},
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                  shape: BoxShape.circle, color: Colors.white),
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.camera_alt_outlined,
+                                  size: ResponsiveFile.height20,
                                 ),
+                                onPressed: () async{
+                                  final path= await Upload.pickfile();
+                                  Error.ErrorMsg(msg: path.toString());
+
+                                },
                               ),
                             ),
                           ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:printonex_final/consts/bezierContainer.dart';
 import 'package:printonex_final/consts/responsive_file.dart';
 import 'package:printonex_final/consts/text_class.dart';
+import 'package:printonex_final/main_screen.dart';
 import 'package:printonex_final/services/authuser.dart';
 import 'package:printonex_final/consts/errormsg.dart';
 import 'package:printonex_final/services/validation.dart';
@@ -12,6 +13,7 @@ import 'package:printonex_final/views/auth_pages/registration.dart';
 import 'package:printonex_final/views/auth_pages/forgetpassword.dart';
 import 'package:printonex_final/views/pages/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -28,23 +30,47 @@ class _LoginPageState extends State<LoginPage> {
   final _focusPassword = FocusNode();
 
   bool _isProcessing = false;
-
+signInAnonymously() async {
+  try {
+    final userCredential =
+        await FirebaseAuth.instance.signInAnonymously();
+    print("Signed in with temporary account.");
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => MainScreen(),
+      ),
+    );
+  } on FirebaseAuthException catch (e) {
+    switch (e.code) {
+      case "operation-not-allowed":
+        print("Anonymous auth hasn't been enabled for this project.");
+        break;
+      default:
+        print("Unknown error.");
+    }
+  }
+}
   Future<FirebaseApp> _initializeFirebase() async {
     FirebaseApp firebaseApp = await Firebase.initializeApp();
-
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => Home(),
+          builder: (context) => MainScreen(),
         ),
       );
     }
 
     return firebaseApp;
   }
+  @override
+  void initState() {
+    _initializeFirebase();
+    super.initState();
 
+
+  }
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -148,7 +174,7 @@ class _LoginPageState extends State<LoginPage> {
                                       decoration: InputDecoration(
                                           contentPadding: EdgeInsets.only(
                                               left:
-                                                  ResponsiveFile.height20 + 5),
+                                                  ResponsiveFile.height20 + 10),
                                           //focusColor: Colors.greenAccent,
                                           focusedBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(
@@ -249,23 +275,22 @@ class _LoginPageState extends State<LoginPage> {
                               password: _passwordTextController.text,
                             );
 
-
                             setState(() {
                               _isProcessing = false;
                             });
 
                             if (user != null) {
-                              FirebaseAuth.instance
-                                  .setPersistence(Persistence.LOCAL)
-                                  .then((value) =>
+                              // FirebaseAuth.instance
+                              //     .setPersistence(Persistence.LOCAL)
+                              //     .then((value) =>
 
-                                      print('Successfully set persistence'))
-                                  .catchError(
-                                      (error) => print('Error: $error'));
+                              //         print('Successfully set persistence'))
+                              //     .catchError(
+                              //         (error) => print('Error: $error'));
 
                               Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
-                                  builder: (context) => Home(),
+                                  builder: (context) => MainScreen(),
                                 ),
                               );
                             }
@@ -341,11 +366,71 @@ class _LoginPageState extends State<LoginPage> {
                           ],
                         ),
                       ),
+                      InkWell(
+                        onTap: (){
+                          signInAnonymously();
+                        },
+                        child: Container(
+                          height: 40,
+                          margin: EdgeInsets.symmetric(horizontal: 50, vertical: 5),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                          ),
+                          child: Row(
+                            children: <Widget>[
+                              Expanded(
+                                flex: 1,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white70,
+                                    borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(5),
+                                        topLeft: Radius.circular(5)),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: GradientText(
+                                    "G",
+                                    style: TextStyle(
+                                        fontSize: 35,
+                                        fontWeight:
+                                        FontWeight.bold),
+
+                                    colors: [
+                                      Colors.red,
+                                      Colors.greenAccent,
+                                      Colors.blueAccent,
+
+                                    ],
+                                  ),
+
+                                ),
+                              ),
+                              Expanded(
+                                flex: 5,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue,
+                                    borderRadius: BorderRadius.only(
+                                        bottomRight: Radius.circular(5),
+                                        topRight: Radius.circular(5)),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text('Sing In As Guest',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w400)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                       Container(
-                        height: 50,
-                        margin: EdgeInsets.symmetric(vertical: 5),
+                        height: 40,
+                        margin: EdgeInsets.symmetric(horizontal:50,vertical: 5),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
                         child: Row(
                           children: <Widget>[
@@ -359,7 +444,7 @@ class _LoginPageState extends State<LoginPage> {
                                       topLeft: Radius.circular(5)),
                                 ),
                                 alignment: Alignment.center,
-                                child: Image.asset("images/icons/google.png"),
+                                child: Image.asset("images/google.png"),
                               ),
                             ),
                             Expanded(
@@ -382,51 +467,7 @@ class _LoginPageState extends State<LoginPage> {
                           ],
                         ),
                       ),
-                      Container(
-                        height: 50,
-                        margin: EdgeInsets.symmetric(vertical: 10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                        child: Row(
-                          children: <Widget>[
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white70,
-                                  borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius.circular(5),
-                                      topLeft: Radius.circular(5)),
-                                ),
-                                alignment: Alignment.center,
-                                child: Text('f',
-                                    style: TextStyle(
-                                        color: Colors.blue,
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.w400)),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 5,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius: BorderRadius.only(
-                                      bottomRight: Radius.circular(5),
-                                      topRight: Radius.circular(5)),
-                                ),
-                                alignment: Alignment.center,
-                                child: Text('Log in with Facebook',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w400)),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+
                       InkWell(
                         onTap: () {
                           Navigator.of(context).push(

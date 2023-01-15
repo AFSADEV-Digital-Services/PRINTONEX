@@ -11,7 +11,8 @@ class _ChatState extends State<Chat> {
   @override
   Widget build(BuildContext context) {
     return Container(
-
+      height: 450,
+      color: Colors.greenAccent,
     );
   }
 }

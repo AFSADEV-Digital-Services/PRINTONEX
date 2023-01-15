@@ -16,7 +16,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-  final _pages = [ Print(), Cart(), OrderHistory(), Chat()];
+  final _pages = [Home(), Print(), Cart(), OrderHistory(), Chat()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,13 +29,13 @@ class _MainScreenState extends State<MainScreen> {
         curve: Curves.elasticInOut,
         onItemSelected: (index) => setState(() => _currentIndex = index),
         items: <BottomNavyBarItem>[
-          // BottomNavyBarItem(
-          //   icon: Icon(Icons.home),
-          //   title: Text('Home'),
-          //   activeColor: Colors.pinkAccent,
-          //   inactiveColor: Colors.greenAccent,
-          //   textAlign: TextAlign.center,
-          // ),
+          BottomNavyBarItem(
+            icon: Icon(Icons.home),
+            title: Text('Home'),
+            activeColor: Colors.pinkAccent,
+            inactiveColor: Colors.greenAccent,
+            textAlign: TextAlign.center,
+          ),
           BottomNavyBarItem(
             icon: Icon(Icons.print),
             title: Text(

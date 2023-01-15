@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class FireAuth {
   // For registering a new user
@@ -25,9 +27,9 @@ class FireAuth {
       user = auth.currentUser;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
+        Get.snackbar('Fail!', 'The password provided is too weak.',backgroundColor: Colors.greenAccent);
       } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
+        Get.snackbar('Fail!', 'The account already exists for that email.',backgroundColor: Colors.greenAccent);
       }
     } catch (e) {
       print(e);
@@ -35,25 +37,21 @@ class FireAuth {
 
     return user;
   }
+
   static Future<void> sendPasswordResetEmail({
     required String email,
   }) async {
     FirebaseAuth auth = FirebaseAuth.instance;
     try {
       await auth.sendPasswordResetEmail(email: email);
-    } on FirebaseAuthException catch  (e) {
-      print('Failed with error code: ${e.code}');
-      print(e.message);
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar('Fail!', ' ${e.code}',backgroundColor: Colors.deepPurpleAccent);
+      Get.snackbar('Fail!', '${e.message}',backgroundColor: Colors.deepPurpleAccent);
     }
-
-
   }
 
   // For signing in an user (have already registered)
-  static Future<User?> signInUsingEmailPassword(
-
-      {
-
+  static Future<User?> signInUsingEmailPassword({
     required String email,
     required String password,
   }) async {
@@ -68,11 +66,9 @@ class FireAuth {
       user = userCredential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-
-        print('No user found for that email.');
+        Get.snackbar('Fail!', 'No user found for that email.', backgroundColor: Colors.greenAccent);
       } else if (e.code == 'wrong-password') {
-        print('Wrong password provided.');
-
+        Get.snackbar('Fail!', 'Wrong password provided.', backgroundColor: Colors.greenAccent);
       }
     }
 
