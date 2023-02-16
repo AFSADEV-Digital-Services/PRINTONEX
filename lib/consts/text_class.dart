@@ -9,7 +9,9 @@ class AppText extends StatelessWidget {
   final String? fontFamily;
   final TextAlign? textAlign;
   final double? wordSpacing;
+  final double? letterSpacing;
   final int? maxLine;
+  final bool? softWrap;
   final TextOverflow? overflow;
   final VoidCallback? onClick;
   final FontStyle? fontStyle;
@@ -23,7 +25,9 @@ class AppText extends StatelessWidget {
     this.fontStyle,
     this.fontFamily,
     this.wordSpacing,
+    this.letterSpacing,
     this.maxLine,
+    this.softWrap,
     this.textAlign,
     this.overflow,
     this.onClick,
@@ -35,6 +39,7 @@ class AppText extends StatelessWidget {
       child: onClick == null
           ? Text(
               text,
+              softWrap: softWrap,
               textAlign: textAlign,
               overflow: overflow,
               maxLines: maxLine,
@@ -45,6 +50,7 @@ class AppText extends StatelessWidget {
                 color: color,
                 fontFamily: fontFamily,
                 wordSpacing: wordSpacing,
+                letterSpacing: letterSpacing,
               ),
             )
           : TextButton(

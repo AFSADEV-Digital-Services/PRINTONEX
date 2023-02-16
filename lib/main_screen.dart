@@ -16,7 +16,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-  final _pages = [Home(), Print(), Cart(), OrderHistory(), Chat()];
+  final _pages = [Home(), const Print(), const Cart(), const OrderHistory(), Chat()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(

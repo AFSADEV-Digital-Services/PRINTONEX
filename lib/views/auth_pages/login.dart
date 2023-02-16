@@ -1,18 +1,18 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
+import 'package:printonex_final/Providers/auth_provider.dart';
 import 'package:printonex_final/consts/bezierContainer.dart';
+import 'package:printonex_final/consts/firebase/color_constants.dart';
 import 'package:printonex_final/consts/responsive_file.dart';
 import 'package:printonex_final/consts/text_class.dart';
 import 'package:printonex_final/main_screen.dart';
 import 'package:printonex_final/services/authuser.dart';
-import 'package:printonex_final/consts/errormsg.dart';
 import 'package:printonex_final/services/validation.dart';
-import 'package:printonex_final/views/auth_pages/profile.dart';
 import 'package:printonex_final/views/auth_pages/registration.dart';
 import 'package:printonex_final/views/auth_pages/forgetpassword.dart';
-import 'package:printonex_final/views/pages/home.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 class LoginPage extends StatefulWidget {
@@ -22,57 +22,31 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-
   final _emailTextController = TextEditingController();
   final _passwordTextController = TextEditingController();
-
   final _focusEmail = FocusNode();
   final _focusPassword = FocusNode();
-
   bool _isProcessing = false;
-signInAnonymously() async {
-  try {
-    final userCredential =
-        await FirebaseAuth.instance.signInAnonymously();
-    print("Signed in with temporary account.");
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => MainScreen(),
-      ),
-    );
-  } on FirebaseAuthException catch (e) {
-    switch (e.code) {
-      case "operation-not-allowed":
-        print("Anonymous auth hasn't been enabled for this project.");
-        break;
-      default:
-        print("Unknown error.");
-    }
-  }
-}
-  Future<FirebaseApp> _initializeFirebase() async {
-    FirebaseApp firebaseApp = await Firebase.initializeApp();
-    User? user = FirebaseAuth.instance.currentUser;
 
-    if (user != null) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => MainScreen(),
-        ),
-      );
-    }
-
-    return firebaseApp;
-  }
-  @override
-  void initState() {
-    _initializeFirebase();
-    super.initState();
-
-
-  }
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    switch (authProvider.status) {
+      case Status.authenticateError:
+        Fluttertoast.showToast(msg: 'Authentication Failed Check Email/Password', backgroundColor:Colors.red);
+        break;
+      case Status.uninitialized:
+        print('Starting....');
+        break;
+      case Status.authenticating:
+       print('Checking For Authentication');
+        break;
+      case Status.authenticated:
+        Fluttertoast.showToast(msg: 'Authentication Has Success', backgroundColor:Colors.greenAccent);
+        break;
+      default:
+        break;
+    }
     return GestureDetector(
       onTap: () {
         _focusEmail.unfocus();
@@ -268,9 +242,8 @@ signInAnonymously() async {
                             setState(() {
                               _isProcessing = true;
                             });
-
-                            User? user =
-                                await FireAuth.signInUsingEmailPassword(
+                            bool isSuccess =
+                                await authProvider.signInUsingEmailPassword(
                               email: _emailTextController.text,
                               password: _passwordTextController.text,
                             );
@@ -278,21 +251,12 @@ signInAnonymously() async {
                             setState(() {
                               _isProcessing = false;
                             });
-
-                            if (user != null) {
-                              // FirebaseAuth.instance
-                              //     .setPersistence(Persistence.LOCAL)
-                              //     .then((value) =>
-
-                              //         print('Successfully set persistence'))
-                              //     .catchError(
-                              //         (error) => print('Error: $error'));
-
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                  builder: (context) => MainScreen(),
-                                ),
-                              );
+                            if (isSuccess) {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const MainScreen()));
                             }
                           }
                         },
@@ -367,12 +331,29 @@ signInAnonymously() async {
                         ),
                       ),
                       InkWell(
-                        onTap: (){
-                          signInAnonymously();
+                        onTap: () async {
+                          _focusEmail.unfocus();
+                          _focusPassword.unfocus();
+
+                          setState(() {
+                            _isProcessing = true;
+                          });
+                          User? user = await FireAuth.signInAnonymously();
+                          setState(() {
+                            _isProcessing = false;
+                          });
+                          if (user != null) {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) => MainScreen(),
+                              ),
+                            );
+                          }
                         },
                         child: Container(
                           height: 40,
-                          margin: EdgeInsets.symmetric(horizontal: 50, vertical: 5),
+                          margin:
+                              EdgeInsets.symmetric(horizontal: 50, vertical: 5),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.all(Radius.circular(20)),
                           ),
@@ -392,17 +373,13 @@ signInAnonymously() async {
                                     "G",
                                     style: TextStyle(
                                         fontSize: 35,
-                                        fontWeight:
-                                        FontWeight.bold),
-
+                                        fontWeight: FontWeight.bold),
                                     colors: [
                                       Colors.red,
                                       Colors.greenAccent,
                                       Colors.blueAccent,
-
                                     ],
                                   ),
-
                                 ),
                               ),
                               Expanded(
@@ -428,7 +405,8 @@ signInAnonymously() async {
                       ),
                       Container(
                         height: 40,
-                        margin: EdgeInsets.symmetric(horizontal:50,vertical: 5),
+                        margin:
+                            EdgeInsets.symmetric(horizontal: 50, vertical: 5),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
@@ -467,7 +445,6 @@ signInAnonymously() async {
                           ],
                         ),
                       ),
-
                       InkWell(
                         onTap: () {
                           Navigator.of(context).push(
@@ -507,6 +484,19 @@ signInAnonymously() async {
                   ),
                 ),
               ),
+              if (authProvider.status == Status.authenticating)
+                const Opacity(
+                  opacity: 0.8,
+                  child: ModalBarrier(dismissible: false, color: Colors.black),
+                )
+              else
+                Container(),
+              Center(
+                child: authProvider.status == Status.authenticating
+                    ? const CircularProgressIndicator()
+                    : SizedBox.shrink(),
+              ),
+
             ],
           ),
         ),

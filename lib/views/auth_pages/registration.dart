@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:printonex_final/Providers/auth_provider.dart';
 import 'package:printonex_final/consts/bezierContainer.dart';
 import 'package:printonex_final/consts/responsive_file.dart';
+import 'package:printonex_final/main_screen.dart';
 import 'package:printonex_final/services/authuser.dart';
 import 'package:printonex_final/services/validation.dart';
 import 'package:printonex_final/views/auth_pages/login.dart';
 import 'package:printonex_final/views/auth_pages/profile.dart';
 import 'package:printonex_final/views/pages/home.dart';
+import 'package:provider/provider.dart';
 
 
 class RegisterPage extends StatefulWidget {
@@ -29,6 +33,20 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    switch (authProvider.status) {
+      case Status.authenticateError:
+        Fluttertoast.showToast(msg: 'Sign in failed');
+        break;
+      case Status.authenticating:
+        Fluttertoast.showToast(msg: 'Connecting Server');
+        break;
+      case Status.authenticated:
+        Fluttertoast.showToast(msg: 'Sign in successful');
+        break;
+      default:
+        break;
+    }
     return GestureDetector(
       onTap: () {
         _focusName.unfocus();
@@ -269,29 +287,17 @@ class _RegisterPageState extends State<RegisterPage> {
                               colors: [Color(0xfffbb448), Color(0xfff7892b)])),
                       child: InkWell(
                         onTap: () async {
-                          setState(() {
-                            _isProcessing = true;
-                          });
-
                           if (_registerFormKey.currentState!.validate()) {
-                            User? user =
-                                await FireAuth.registerUsingEmailPassword(
+                            bool isSuccess = await authProvider.registerUsingEmailPassword(
                               name: _nameTextController.text,
                               email: _emailTextController.text,
                               password: _passwordTextController.text,
                             );
-
-                            setState(() {
-                              _isProcessing = false;
-                            });
-
-                            if (user != null) {
-                              Navigator.of(context).pushAndRemoveUntil(
-                                MaterialPageRoute(
-                                  builder: (context) => Home(),
-                                ),
-                                ModalRoute.withName('/'),
-                              );
+                            if (isSuccess) {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const MainScreen()));
                             }
                           }
                         },
