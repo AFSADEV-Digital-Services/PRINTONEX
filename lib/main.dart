@@ -16,7 +16,9 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
+  // MobileAds.instance.initialize();
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent, // transparent status bar
   ));
@@ -24,6 +26,7 @@ void main() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await GetStorage.init();
   runApp(MyApp(prefs: prefs));
+
 }
 
 class MyApp extends StatelessWidget {
@@ -52,6 +55,7 @@ class MyApp extends StatelessWidget {
                 prefs: prefs,
                 firebaseStorage: firebaseStorage,
                 firebaseFirestore: firebaseFirestore)),
+
         Provider<HomeProvider>(
             create: (_) => HomeProvider(firebaseFirestore: firebaseFirestore)),
         ],

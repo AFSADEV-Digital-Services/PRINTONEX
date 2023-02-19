@@ -161,6 +161,16 @@ class AuthProvider extends ChangeNotifier {
 
       user = userCredential.user;
       if (user != null) {
+        final firebaseAuth = FirebaseAuth.instance;
+        final FirebaseFirestore firebasestore =  FirebaseFirestore.instance;
+        await firebasestore
+            .collection(FirestoreConstants.pathUserCollection)
+            .doc(firebaseAuth.currentUser!.uid)
+            .update({
+          'online': "ONLINE",
+          'wetlet' : "0.01"
+
+        });
         await prefs.setString(FirestoreConstants.id, user.uid);
         await prefs.setString(
             FirestoreConstants.displayName, user.displayName ?? "");
@@ -171,6 +181,7 @@ class AuthProvider extends ChangeNotifier {
         _status = Status.authenticated;
         notifyListeners();
         return true;
+
       }
       else{
         _status = Status.authenticateError;

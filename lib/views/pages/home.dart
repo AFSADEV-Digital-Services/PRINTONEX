@@ -9,8 +9,11 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:get/get.dart';
 import 'package:printonex_final/consts/responsive_file.dart';
 import 'package:printonex_final/consts/text_class.dart';
+import 'package:printonex_final/services/comming_soon.dart';
 import 'package:printonex_final/views/auth_pages/login.dart';
 import 'package:printonex_final/views/auth_pages/registration.dart';
+import 'package:printonex_final/views/pages/pancard.dart';
+import 'package:printonex_final/views/pages/print/imageBeautifier.dart';
 import 'package:printonex_final/views/pages/settings.dart';
 import 'package:printonex_final/consts/launch_url.dart';
 import 'package:http/http.dart' as http;
@@ -292,110 +295,142 @@ class _HomeState extends State<Home> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Flexible(
-                                child: SizedBox(
-                                  width: ResponsiveFile.height80,
-                                  height: ResponsiveFile.height120 -
-                                      ResponsiveFile.height20,
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      SizedBox(
-                                        height: ResponsiveFile.height50,
-                                        width: ResponsiveFile.height50,
-                                        child:
-                                            Image.asset("images/2830284.png"),
-                                      ),
-                                      AppText(
-                                        text: "Opening Account",
-                                        textAlign: TextAlign.center,
-                                        size: ResponsiveFile.font14,
-                                        fontWeight: FontWeight.bold,
-                                      )
-                                    ],
+                              InkWell(
+                                onTap: (){
+                                  Navigator.push(context,  MaterialPageRoute(
+                                    builder: (context) => const CommingSoon(),
+                                  )
+                                  );
+                                },
+                                child: Flexible(
+                                  child: SizedBox(
+                                    width: ResponsiveFile.height80,
+                                    height: ResponsiveFile.height120 -
+                                        ResponsiveFile.height20,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          height: ResponsiveFile.height50,
+                                          width: ResponsiveFile.height50,
+                                          child:
+                                              Image.asset("images/2830284.png"),
+                                        ),
+                                        AppText(
+                                          text: "Opening Account",
+                                          textAlign: TextAlign.center,
+                                          size: ResponsiveFile.font14,
+                                          fontWeight: FontWeight.bold,
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                              Flexible(
-                                child: SizedBox(
-                                  width: ResponsiveFile.height80,
-                                  height: ResponsiveFile.height120 -
-                                      ResponsiveFile.height20,
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      SizedBox(
-                                        height: ResponsiveFile.height50,
-                                        width: ResponsiveFile.height50,
-                                        child: Image.asset(
-                                            "images/18-182217_pan-card-pan-card-with-cartoon-hd-png.png"),
-                                      ),
-                                      AppText(
-                                        text: "Pan Card",
-                                        size: ResponsiveFile.font14,
-                                        fontWeight: FontWeight.bold,
-                                      )
-                                    ],
+                              InkWell(
+                                onTap: (){
+                                  Navigator.push(context,  MaterialPageRoute(
+                                    builder: (context) => const PanCard(),
+                                  )
+                                  );
+                                },
+                                child: Flexible(
+                                  child: SizedBox(
+                                    width: ResponsiveFile.height80,
+                                    height: ResponsiveFile.height120 -
+                                        ResponsiveFile.height20,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          height: ResponsiveFile.height50,
+                                          width: ResponsiveFile.height50,
+                                          child: Image.asset(
+                                              "images/18-182217_pan-card-pan-card-with-cartoon-hd-png.png"),
+                                        ),
+                                        AppText(
+                                          text: "Pan Card",
+                                          size: ResponsiveFile.font14,
+                                          fontWeight: FontWeight.bold,
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                              Flexible(
-                                child: SizedBox(
-                                  width: ResponsiveFile.height80,
-                                  height: ResponsiveFile.height120 -
-                                      ResponsiveFile.height20,
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      SizedBox(
-                                        height: ResponsiveFile.height50,
-                                        width: ResponsiveFile.height50,
-                                        child: Image.asset(
-                                            "images/electricity-bill-1817182-1538050.webp"),
-                                      ),
-                                      AppText(
-                                        text: "Electrical Recharge",
-                                        textAlign: TextAlign.center,
-                                        size: ResponsiveFile.font14,
-                                        fontWeight: FontWeight.bold,
-                                      )
-                                    ],
+                              InkWell(
+                                onTap: (){
+                                  Navigator.push(context,  MaterialPageRoute(
+                                    builder: (context) => const CommingSoon(),
+                                  )
+                                  );
+                                },
+                                child: Flexible(
+                                  child: SizedBox(
+                                    width: ResponsiveFile.height80,
+                                    height: ResponsiveFile.height120 -
+                                        ResponsiveFile.height20,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          height: ResponsiveFile.height50,
+                                          width: ResponsiveFile.height50,
+                                          child: Image.asset(
+                                              "images/electricity-bill-1817182-1538050.webp"),
+                                        ),
+                                        AppText(
+                                          text: "Electrical Recharge",
+                                          textAlign: TextAlign.center,
+                                          size: ResponsiveFile.font14,
+                                          fontWeight: FontWeight.bold,
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                              Flexible(
-                                child: SizedBox(
-                                  width: ResponsiveFile.height80,
-                                  height: ResponsiveFile.height120 -
-                                      ResponsiveFile.height20,
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      SizedBox(
-                                        height: ResponsiveFile.height50,
-                                        width: ResponsiveFile.height50,
-                                        child: Image.asset(
-                                            "images/recharge.png"),
-                                      ),
-                                      AppText(
-                                        text: "Mobile Recharge",
-                                        textAlign: TextAlign.center,
-                                        size: ResponsiveFile.font14,
-                                        fontWeight: FontWeight.bold,
-                                      )
-                                    ],
+                              InkWell(
+                                onTap: (){
+                                  Navigator.push(context,  MaterialPageRoute(
+                                    builder: (context) => const CommingSoon(),
+                                  )
+                                  );
+                                },
+                                child: Flexible(
+                                  child: SizedBox(
+                                    width: ResponsiveFile.height80,
+                                    height: ResponsiveFile.height120 -
+                                        ResponsiveFile.height20,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          height: ResponsiveFile.height50,
+                                          width: ResponsiveFile.height50,
+                                          child: Image.asset(
+                                              "images/recharge.png"),
+                                        ),
+                                        AppText(
+                                          text: "Mobile Recharge",
+                                          textAlign: TextAlign.center,
+                                          size: ResponsiveFile.font14,
+                                          fontWeight: FontWeight.bold,
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -414,8 +449,13 @@ class _HomeState extends State<Home> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               Flexible(
-                                child: InkWell(
-                                  onTap: () {},
+                                child:  InkWell(
+                                  onTap: (){
+                                    Navigator.push(context,  MaterialPageRoute(
+                                      builder: (context) => const CommingSoon(),
+                                    )
+                                    );
+                                  },
                                   child: SizedBox(
                                     width: ResponsiveFile.height80,
                                     height: ResponsiveFile.height120 -
@@ -445,7 +485,13 @@ class _HomeState extends State<Home> {
                               ),
                               Flexible(
                                 child: InkWell(
-                                  onTap: () {},
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ImageBeautifier(),
+                                        ));
+                                  },
                                   child: SizedBox(
                                     width: ResponsiveFile.height80,
                                     height: ResponsiveFile.height120 -
@@ -503,30 +549,38 @@ class _HomeState extends State<Home> {
                                   ),
                                 ),
                               ),
-                              Flexible(
-                                child: SizedBox(
-                                  width: ResponsiveFile.height80,
-                                  height: ResponsiveFile.height120 -
-                                      ResponsiveFile.height20,
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      SizedBox(
-                                        height: ResponsiveFile.height50,
-                                        width: ResponsiveFile.height50,
-                                        child:
-                                            Image.asset("images/3029373.png"),
-                                      ),
-                                      AppText(
-                                        text: "Money Transfer",
-                                        textAlign: TextAlign.center,
-                                        size: ResponsiveFile.font14,
-                                        fontWeight: FontWeight.bold,
-                                      )
-                                    ],
+                              InkWell(
+                                onTap: (){
+                                  Navigator.push(context,  MaterialPageRoute(
+                                    builder: (context) => const CommingSoon(),
+                                  )
+                                  );
+                                },
+                                child: Flexible(
+                                  child: SizedBox(
+                                    width: ResponsiveFile.height80,
+                                    height: ResponsiveFile.height120 -
+                                        ResponsiveFile.height20,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          height: ResponsiveFile.height50,
+                                          width: ResponsiveFile.height50,
+                                          child:
+                                              Image.asset("images/3029373.png"),
+                                        ),
+                                        AppText(
+                                          text: "Money Transfer",
+                                          textAlign: TextAlign.center,
+                                          size: ResponsiveFile.font14,
+                                          fontWeight: FontWeight.bold,
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

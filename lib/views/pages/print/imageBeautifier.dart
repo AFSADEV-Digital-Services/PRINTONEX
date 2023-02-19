@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_share/flutter_share.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:printonex_final/consts/responsive_file.dart';
@@ -21,6 +23,7 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as path_provider;
+
 import 'package:printonex_final/views/pages/print/PrintPhoto.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 class ImageBeautifier extends StatefulWidget {
@@ -42,13 +45,16 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
   late bool error, showProgress;
 
 
+
   @override
   void initState() {
     super.initState();
     showProgress = false;
+
   }
 
   sendFile() async {
+
     String apiUrl = "https://api.replicate.com/v1/predictions";
     var data = '\n{"version": "9283608cc6b7be6b65a8e44983db012355fde4132009bf99d976b2f0896856a3", "input": {"img": "$imagefile"}}\n';
     var headers = {
@@ -152,11 +158,20 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
         backgroundColor: Colors.green);
     print("Printonex_${DateTime.now()}");
   }
+  void share() {
+    FlutterShare.share(
+        title: 'PRINTONEX APP',
+        text: 'Download Our Online App for any Services👇',
+        linkUrl: 'https://afsadev.in/Download/PrintoNexOnline.apk '
+            'Your Image Can Download From this link 👇'
+            '$outputImage',
+        chooserTitle: 'PRINTONEX');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:  Colors.black87,
+      backgroundColor: Colors.black54,
       appBar: AppBar(
         title: const AppText(
           text: "Image Beautifier",
@@ -170,7 +185,15 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
         backgroundColor: Colors.greenAccent,
         elevation: 0,
         actions: [
-          outputImage==null?IconButton(
+          // IconButton(
+          //   icon: const Icon(Icons.refresh, color: Colors.red),
+          //   onPressed: () {
+          //     setState(() {
+          //       //_showRewardedAd();
+          //     });
+          //   },
+          // ),
+          outputImage!=null?IconButton(
             icon: const Icon(Icons.refresh, color: Colors.red),
             onPressed: () {
               setState(() {
@@ -181,14 +204,17 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
           ): Container(
 
                 ),
-          IconButton(
+          outputImage!=null?IconButton(
             icon: const Icon(Icons.format_paint, color: Colors.pinkAccent),
             onPressed: () {
               setState(() {
                 sendFile();
+                //getadsreward();
                 showProgress = true;
               });
             },
+          ): Container(
+
           ),
             IconButton(
               onPressed: () {
@@ -208,7 +234,8 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
             width: ResponsiveFile.screenWidth,
             height: ResponsiveFile.screenHeight,
             color: Colors.black87,
-            child: outputImage != null
+            child: imagefile!=null?
+            outputImage != null
                 ? BeforeAfter(
               beforeImage: Image.network(
                 imagefile.toString(),
@@ -219,20 +246,22 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
             )
                 : Image.network(
               imagefile.toString()
-            ),
+            ):Center(
+
+                child: InkWell(
+                  onTap: (){
+                      _awaitReturnValueFromSecondScreen(context);
+                  },
+                  child: AppText(
+                    text: "Click the Above Camera Icon\n "
+                        "      select Images or Files",
+                    size: ResponsiveFile.font16,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ))
           ),
-          // if (showProgress == true)
-          //   const Opacity(
-          //     opacity: 0.8,
-          //     child: ModalBarrier(dismissible: false, color: Colors.black),
-          //   )
-          // else
-          //   Container(),
-          // Center(
-          //   child: showProgress == true
-          //       ? const CircularProgressIndicator()
-          //       : Container(),
-          // ),
+
           if (showProgress == true)
             const Opacity(
               opacity: 0.8,
@@ -245,13 +274,12 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
                 ? const CircularProgressIndicator()
                 : Container(),
           ),
-          outputImage != null
-              ? Positioned(
+          outputImage != null? Positioned(
             bottom: 10,
             left: 10,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  primary: Colors.pinkAccent,
+                  primary: Colors.blueAccent,
                   onPrimary: Colors.white,
                   shape: const RoundedRectangleBorder(
                       borderRadius:
@@ -302,9 +330,8 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
                 ),
               ),
             ),
-          )
-              : Container(),
-          Positioned(
+          ): Container(),
+          outputImage != null?Positioned(
             bottom: 10,
             right: 10,
             child: ElevatedButton(
@@ -342,7 +369,40 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
                 ),
               ),
             ),
-          )
+          ):Container(),
+          outputImage != null?Positioned(
+            bottom: 80,
+            left: 10,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  primary: Colors.greenAccent,
+                  onPrimary: Colors.white,
+                  shape: const RoundedRectangleBorder(
+                      borderRadius:
+                      BorderRadius.all(const Radius.circular(20)))),
+              onPressed: () {
+                share();
+
+
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  children: [
+                    AppText(
+                      text: "Share Now",
+                      fontWeight: FontWeight.bold,
+                      size: ResponsiveFile.font16,
+                    ),
+                    SizedBox(
+                      width: ResponsiveFile.height10,
+                    ),
+                    const Icon(Icons.share)
+                  ],
+                ),
+              ),
+            ),
+          ):Container()
         ],
       ),
 

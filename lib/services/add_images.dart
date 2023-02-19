@@ -1,3 +1,5 @@
+
+
 import 'dart:async';
 
 import 'dart:io';
@@ -11,6 +13,9 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as Path;
 import 'package:printonex_final/consts/responsive_file.dart';
+import 'package:printonex_final/consts/text_class.dart';
+
+
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 class AddImages extends StatefulWidget {
@@ -34,9 +39,43 @@ class _AddImagesState extends State<AddImages> {
   late bool error, showProgress;
   TextEditingController messageController = TextEditingController();
   final CarouselController _controller = CarouselController();
+  List<String> selectedimages = [];
+
+
+  List<dynamic> userfile= [];
+
+  getData() async {
+    final auth = FirebaseAuth.instance;
+    dynamic user;
+    String userEmail, uid;
+    user = auth.currentUser!;
+    uid = user.uid;
+    // QuerySnapshot bannersRef =
+    // await FirebaseFirestore.instance.collection('uploader').doc(uid).collection(uid).get();
+    print(userfile);
+    QuerySnapshot bannersRef =
+    await FirebaseFirestore.instance.collection('uploader').doc(uid).collection(uid).get();
+    setState(() {
+      for (int g = 0; g < bannersRef.docs.length; g++) {
+        print(bannersRef.docs[g]["fileUrl"].length);
+        for (int i = 0; i < bannersRef.docs[g]["fileUrl"].length; i++) {
+          userfile.add(
+            bannersRef.docs[g]["fileUrl"][i],
+          );
+        }
+      }
+    });
+    return bannersRef.docs;
+
+  }
+
+
   @override
   void initState() {
     super.initState();
+
+    getData();
+
     showProgress = false;
     // For sharing images coming from outside the app while the app is in the memory
     _intentDataStreamSubscription = ReceiveSharingIntent.getMediaStream()
@@ -60,19 +99,26 @@ class _AddImagesState extends State<AddImages> {
             (_sharedFiles?.map((f) => f.path).join(",") ?? ""));
       });
     });
+
   }
 
   @override
   void dispose() {
     _intentDataStreamSubscription.cancel();
+    _controller;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.black87,
       appBar: AppBar(
+        title: const AppText(
+          text: "File/Images Uploader",
+          color: Colors.black54,
+        ),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(15),
@@ -108,21 +154,154 @@ class _AddImagesState extends State<AddImages> {
         ],
       ),
       body: images.isEmpty
-          ? InkWell(
-              onTap: () {
-                getMultipleImage();
-              },
-              child: SizedBox(
+          ? Stack(
+            children: [
+              SizedBox(
                   height: ResponsiveFile.screenHeight,
                   width: ResponsiveFile.screenWidth,
-                  child: const Center(
-                    child: Icon(
-                      Icons.add_a_photo,
-                      size: 100,
-                      color: Colors.greenAccent,
+                  child:
+
+                  GridView.builder(
+                    itemCount: userfile.length,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4,
                     ),
-                  )),
-            )
+                    scrollDirection: Axis.vertical,
+                    itemBuilder: (ctx, i) {
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (selectedimages.contains(userfile[i].toString())) {
+                              selectedimages.remove(userfile[i].toString());
+                            } else {
+                              selectedimages.add(userfile[i].toString());
+                            }
+                            if (kDebugMode) {
+                              print(selectedimages);
+                            }
+                          });
+                        },
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: ResponsiveFile.height150,
+                              margin: EdgeInsets.all(ResponsiveFile.height10 / 3.3),
+                              height: ResponsiveFile.height150,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                      ResponsiveFile.height10 / 1.25),
+                                  image: DecorationImage(
+                                      image: NetworkImage(userfile[i]),
+                                      fit: BoxFit.cover)),
+                              child:  Image.network(
+                                userfile[i],
+                                fit: BoxFit.fill,
+                                loadingBuilder: (BuildContext context, Widget child,
+                                    ImageChunkEvent? loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value: loadingProgress.expectedTotalBytes != null
+                                          ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                          : null,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(ResponsiveFile.height10 / 2),
+                              child: Align(
+                                alignment: Alignment.bottomRight,
+                                child: selectedimages.contains(userfile[i].toString())
+                                    ? const Icon(
+                                  Icons.check_box,
+                                  color: Colors.greenAccent,
+                                )
+                                    : const Icon(
+                                  Icons.check_box_outline_blank,
+                                  color: Colors.redAccent,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              selectedimages!=null?Positioned(
+                bottom: 10,
+                left: 10,
+                right: 10,
+                child: Row(
+                  children: [
+
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.orange,
+                        onPrimary: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              ResponsiveFile.height10 / 2),
+                        ),
+                      ),
+                      onPressed: () async {
+                        Navigator.of(context).pop(selectedimages);
+
+                      },
+                      child: Row(
+                        children: [
+
+                          Text("Process"),
+                          SizedBox(
+                            width: ResponsiveFile.height10,
+                          ),
+                          const Icon(Icons.backup),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ):Container(),
+              selectedimages!=null?Positioned(
+                bottom: 50,
+                right: 10,
+                left: 10,
+                child: Row(
+                  children: [
+
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.orange,
+                        onPrimary: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              ResponsiveFile.height10 / 2),
+                        ),
+                      ),
+                      onPressed: () async {
+                        Navigator.of(context).pop(selectedimages);
+
+                      },
+                      child: Row(
+                        children: [
+
+                          Text("Process"),
+                          SizedBox(
+                            width: ResponsiveFile.height10,
+                          ),
+                          const Icon(Icons.backup),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ):Container(),
+            ],
+
+          )
           : Stack(
               children: [
                 if (showProgress == true)
@@ -166,9 +345,9 @@ class _AddImagesState extends State<AddImages> {
                         }),
                   ),
                 ),
-                // Positioned(
-                //     bottom: 50,
-                //     child: buildProgress()),
+                Positioned(
+                    bottom: 10,
+                    child: buildProgress()),
                 Positioned(
                   bottom: 70,
                   left: 10,
@@ -198,6 +377,7 @@ class _AddImagesState extends State<AddImages> {
                     ),
                   ),
                 ),
+
                 Positioned(
                   bottom: 10,
                   left: 10,
@@ -230,6 +410,7 @@ class _AddImagesState extends State<AddImages> {
                         },
                         child: Row(
                           children: [
+
                             Text("File: ${images.length}"),
                             SizedBox(
                               width: ResponsiveFile.height10,
@@ -314,17 +495,24 @@ class _AddImagesState extends State<AddImages> {
     user = auth.currentUser!;
     uid = user.uid;
     userEmail = user.email;
-    // return firebaseFirestore
-    //     .collection(collectionPath)
-    //     .doc(path)
-    //     .update(dataUpdateNeeded);
-    FirebaseFirestore.instance.collection('uploader').add({
-      'fileUrl': imageUrls,
-      'uid': uid,
-      'email': userEmail,
-      'createdAt': FieldValue.serverTimestamp(),
-      'message': message
-    }).then((value) {
+
+    FirebaseFirestore.instance.collection('uploader').doc('$uid').collection('$uid').add(
+        {
+          'fileUrl': imageUrls,
+          'uid': uid,
+          'email': userEmail,
+          'createdAt': FieldValue.serverTimestamp(),
+          'message': message
+        })
+    // ;
+    // FirebaseFirestore.instance.collection('uploader').add({
+    //   'fileUrl': imageUrls,
+    //   'uid': uid,
+    //   'email': userEmail,
+    //   'createdAt': FieldValue.serverTimestamp(),
+    //   'message': message
+    // })
+        .then((value) {
       Get.snackbar('Success', 'Data has Saved',
           backgroundColor: Colors.greenAccent);
     });

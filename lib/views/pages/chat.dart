@@ -227,13 +227,8 @@ class _ChatState extends State<Chat> {
             color: Colors.black,
           ),
         ),
-        title: StreamBuilder<DocumentSnapshot>(
-            stream: firebasestore.collection(FirestoreConstants.pathUserCollection).doc(firebaseAuth.currentUser!.uid).snapshots(),
-            builder: (context, snapshot) {
-                  return Text(snapshot.data!['online'].toString());
-    }
-        ),
-        // Text('24x7 Live Chat'.trim()),
+        title: Text("Online 24x7 Live Chat"),
+
         actions: [
           IconButton(
             splashRadius: ResponsiveFile.height15,

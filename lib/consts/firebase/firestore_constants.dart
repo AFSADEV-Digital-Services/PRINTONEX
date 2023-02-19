@@ -13,7 +13,7 @@ class FirestoreConstants {
   static const content = "content";
   static const type = "type";
   static const email = "email";
-  static const uploaddir= "user_upload";
+  static const uploaddir= "uploader";
   static const profiledir= "profile";
   static const bannerdir= "banners";
 

@@ -78,7 +78,7 @@ class _SplashState extends State<Splash> {
       }
 
       if (isLoggedIn) {
-        setStat("OFFLINE");
+        setStat("ONLINE");
         Get.snackbar('Success', 'Already Login',
             backgroundColor: Colors.greenAccent);
         Navigator.pushReplacement(
@@ -89,6 +89,7 @@ class _SplashState extends State<Splash> {
           backgroundColor: Colors.orangeAccent);
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => LoginPage()));
+
     });
     // AuthProvider authProvider = context.read<AuthProvider>();
     // bool isLoggedIn = await authProvider.isLoggedIn();
