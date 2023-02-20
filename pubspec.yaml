@@ -74,6 +74,8 @@ dependencies:
   percent_indicator: ^4.0.0
   flutter_curl:
   dio: ^4.0.6
+  whatsapp_share: ^2.0.1
+  screenshot:
 
 
 

@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -54,15 +55,17 @@ class _AddImagesState extends State<AddImages> {
     // await FirebaseFirestore.instance.collection('uploader').doc(uid).collection(uid).get();
     print(userfile);
     QuerySnapshot bannersRef =
-    await FirebaseFirestore.instance.collection('uploader').doc(uid).collection(uid).get();
+    await FirebaseFirestore.instance.collection('orders').doc(uid).collection(uid).get();
     setState(() {
       for (int g = 0; g < bannersRef.docs.length; g++) {
         print(bannersRef.docs[g]["fileUrl"].length);
+
         for (int i = 0; i < bannersRef.docs[g]["fileUrl"].length; i++) {
           userfile.add(
             bannersRef.docs[g]["fileUrl"][i],
           );
         }
+
       }
     });
     return bannersRef.docs;
@@ -113,7 +116,7 @@ class _AddImagesState extends State<AddImages> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      backgroundColor: Colors.black87,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const AppText(
           text: "File/Images Uploader",
@@ -161,74 +164,69 @@ class _AddImagesState extends State<AddImages> {
                   width: ResponsiveFile.screenWidth,
                   child:
 
-                  GridView.builder(
-                    itemCount: userfile.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                    ),
-                    scrollDirection: Axis.vertical,
-                    itemBuilder: (ctx, i) {
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            if (selectedimages.contains(userfile[i].toString())) {
-                              selectedimages.remove(userfile[i].toString());
-                            } else {
-                              selectedimages.add(userfile[i].toString());
-                            }
-                            if (kDebugMode) {
-                              print(selectedimages);
-                            }
-                          });
-                        },
-                        child: Stack(
-                          children: [
-                            Container(
-                              width: ResponsiveFile.height150,
-                              margin: EdgeInsets.all(ResponsiveFile.height10 / 3.3),
-                              height: ResponsiveFile.height150,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                      ResponsiveFile.height10 / 1.25),
-                                  image: DecorationImage(
-                                      image: NetworkImage(userfile[i]),
-                                      fit: BoxFit.cover)),
-                              child:  Image.network(
-                                userfile[i],
-                                fit: BoxFit.fill,
-                                loadingBuilder: (BuildContext context, Widget child,
-                                    ImageChunkEvent? loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return Center(
-                                    child: CircularProgressIndicator(
-                                      value: loadingProgress.expectedTotalBytes != null
-                                          ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                          : null,
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: GridView.builder(
+                      itemCount: userfile.length,
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4,
+                      ),
+                      scrollDirection: Axis.vertical,
+                      itemBuilder: (ctx, i) {
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (selectedimages.contains(userfile[i].toString())) {
+                                selectedimages.remove(userfile[i].toString());
+                              } else {
+                                selectedimages.add(userfile[i].toString());
+                              }
+                              if (kDebugMode) {
+                                print(selectedimages);
+                              }
+                            });
+                          },
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: ResponsiveFile.height150,
+                                margin: EdgeInsets.all(ResponsiveFile.height10 / 3.3),
+                                height: ResponsiveFile.height150,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                        ResponsiveFile.height10 / 1.25),
                                     ),
-                                  );
-                                },
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(ResponsiveFile.height10 / 2),
-                              child: Align(
-                                alignment: Alignment.bottomRight,
-                                child: selectedimages.contains(userfile[i].toString())
-                                    ? const Icon(
-                                  Icons.check_box,
-                                  color: Colors.greenAccent,
-                                )
-                                    : const Icon(
-                                  Icons.check_box_outline_blank,
-                                  color: Colors.redAccent,
+                                child:   CachedNetworkImage(
+                                  imageUrl: userfile[i],
+                                  fit: BoxFit.fill,
+                                  errorWidget: (context, url, error) =>
+                                  const Icon(
+                                    Icons.account_circle,
+                                    color: Colors.white,
+                                    size: 120,
+                                  ),
                                 ),
                               ),
-                            )
-                          ],
-                        ),
-                      );
-                    },
+                              Padding(
+                                padding: EdgeInsets.all(ResponsiveFile.height10 / 2),
+                                child: Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: selectedimages.contains(userfile[i].toString())
+                                      ? const Icon(
+                                    Icons.check_box,
+                                    color: Colors.greenAccent,
+                                  )
+                                      : const Icon(
+                                    Icons.check_box_outline_blank,
+                                    color: Colors.redAccent,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
               selectedimages!=null?Positioned(
@@ -248,7 +246,9 @@ class _AddImagesState extends State<AddImages> {
                         ),
                       ),
                       onPressed: () async {
-                        Navigator.of(context).pop(selectedimages);
+                        selectedimages.isEmpty? Get.snackbar(
+                            'Error', 'Select Image From List/Upload',
+                            backgroundColor: Colors.red):Navigator.of(context).pop(selectedimages);
 
                       },
                       child: Row(
@@ -265,40 +265,38 @@ class _AddImagesState extends State<AddImages> {
                   ],
                 ),
               ):Container(),
-              selectedimages!=null?Positioned(
-                bottom: 50,
-                right: 10,
-                left: 10,
-                child: Row(
-                  children: [
-
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.orange,
-                        onPrimary: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                              ResponsiveFile.height10 / 2),
-                        ),
-                      ),
-                      onPressed: () async {
-                        Navigator.of(context).pop(selectedimages);
-
-                      },
-                      child: Row(
-                        children: [
-
-                          Text("Process"),
-                          SizedBox(
-                            width: ResponsiveFile.height10,
-                          ),
-                          const Icon(Icons.backup),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ):Container(),
+              // selectedimages!=null?Positioned(
+              //   bottom: 60,
+              //   right: 10,
+              //   left: 10,
+              //   child: Row(
+              //     children: [
+              //       ElevatedButton(
+              //         style: ElevatedButton.styleFrom(
+              //           primary: Colors.orange,
+              //           onPrimary: Colors.white,
+              //           shape: RoundedRectangleBorder(
+              //             borderRadius: BorderRadius.circular(
+              //                 ResponsiveFile.height10 / 2),
+              //           ),
+              //         ),
+              //         onPressed: () async {
+              //           Navigator.of(context).pop(selectedimages);
+              //
+              //         },
+              //         child: Row(
+              //           children: [
+              //             Text("Remove"),
+              //             SizedBox(
+              //               width: ResponsiveFile.height10,
+              //             ),
+              //             const Icon(Icons.delete_forever),
+              //           ],
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ):Container(),
             ],
 
           )
@@ -486,6 +484,9 @@ class _AddImagesState extends State<AddImages> {
       print(url.toString());
     }
     return url;
+  }
+  remove_files(List<String> imageUrls) async {
+
   }
 
   storeEntry(List<String> imageUrls, String message) async {

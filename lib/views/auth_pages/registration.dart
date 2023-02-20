@@ -294,6 +294,8 @@ class _RegisterPageState extends State<RegisterPage> {
                               password: _passwordTextController.text,
                             );
                             if (isSuccess) {
+                              User? user = FirebaseAuth.instance.currentUser;
+                                await user!.sendEmailVerification();
                               Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(

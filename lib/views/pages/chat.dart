@@ -21,6 +21,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../consts/responsive_file.dart';
 
 class Chat extends StatefulWidget {
+  final String share;
+   Chat(this.share);
+
+
   @override
   State<Chat> createState() => _ChatState();
 }
@@ -326,7 +330,9 @@ class _ChatState extends State<Chat> {
                 ),
               ),
               onFieldSubmitted: (value) {
-                onSendMessage(textEditingController.text, MessageType.text);
+                onSendMessage(
+                    textEditingController.text,
+                    MessageType.text);
               },
             ),
           ),

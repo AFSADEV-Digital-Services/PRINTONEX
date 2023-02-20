@@ -16,7 +16,10 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-  final _pages = [Home(), const Print(), const Cart(), const OrderHistory(), Chat()];
+  static String share='';
+  final _pages = [Home(), const Print(), const Cart(), const OrderHistory(), Chat(share)];
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +40,8 @@ class _MainScreenState extends State<MainScreen> {
             textAlign: TextAlign.center,
           ),
           BottomNavyBarItem(
-            icon: Icon(Icons.print),
+            icon: Image.asset(
+              "images/printer.png", width: 30,),
             title: Text(
               'Print',
             ),
@@ -60,7 +64,8 @@ class _MainScreenState extends State<MainScreen> {
             textAlign: TextAlign.center,
           ),
           BottomNavyBarItem(
-            icon: Icon(Icons.chat),
+            icon: Image.asset(
+                "images/app_icon.png", width: 30,),
             title: Text('Chat'),
             activeColor: Colors.pinkAccent,
             inactiveColor: Colors.greenAccent,

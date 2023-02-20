@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -12,8 +14,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Checkout extends StatefulWidget {
 
-  // final id, price, fileid;
-  // Checkout({this.id, this.price, this.fileid});
+  final String price, fileurl, product, producturl;
+  Checkout({required this.price, required this.fileurl,required this.product,required this.producturl});
 
 
   @override
@@ -30,16 +32,6 @@ class _CheckoutState extends State<Checkout> {
   String _pincode='';
   String _phone= '';
   String? _loginAuth;
-  Future<dynamic> checkout() async {
-    var response = await http.post(Uri.parse(checkoutapi), body: {
-      'order_id': random.toString(), //get the username text
-      'total': "total.toString()", //get password text
-    });
-    if (response.statusCode == 200) {
-      var jsondata = json.decode(response.body);
-      print(jsondata["list"]);
-    }
-  }
 
  _determinePosition() async {
    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
@@ -74,16 +66,21 @@ class _CheckoutState extends State<Checkout> {
                     children: <Widget>[
                       IconButton(icon: Icon(Icons.info, color: Colors.greenAccent,), onPressed: null),
                       Text(
-                        'Total : ',
-                        style: TextStyle(
-                            fontSize: 17.0,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold),
+                        'Total' ,
+                        style: TextStyle(fontSize: 17.0, color: Colors.black),
                       ),
                       Text(
                         '₹ ' ,
                         style: TextStyle(fontSize: 17.0, color: Colors.black),
                       ),
+                      Text(
+                        widget.price.toString(),
+                        style: TextStyle(
+                            fontSize: 17.0,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold),
+                      ),
+
 
                     ],
 
@@ -105,7 +102,7 @@ class _CheckoutState extends State<Checkout> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => Payment(fileid: 1, price: "1",userid: 1,)));
+                                builder: (context) => Payment(fileurl: widget.fileurl, price: widget.price, producturl: widget.producturl, product: widget.product, address: "Not Fill",)));
                      },
                     ),
                   ),
@@ -375,7 +372,7 @@ class _CheckoutState extends State<Checkout> {
                             Expanded(
                               child: Container(
                                 alignment: Alignment.topRight,
-                                child: Text('₹' ,
+                                child: Text('₹'+widget.price ,
                                     style: TextStyle(
                                         fontSize: 16.0,
                                         color: Colors.black87,
@@ -405,7 +402,7 @@ class _CheckoutState extends State<Checkout> {
                               Expanded(
                                 child: Container(
                                   alignment: Alignment.topRight,
-                                  child: Text("₹ 10",
+                                  child: Text("₹ 50",
                                       style: TextStyle(
                                           fontSize: 16.0,
                                           color: Colors.grey,

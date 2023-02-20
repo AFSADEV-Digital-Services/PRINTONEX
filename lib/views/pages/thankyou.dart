@@ -2,13 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:printonex_final/views/pages/order_history.dart';
 
 class Thankyou extends StatefulWidget {
-  const Thankyou({Key? key}) : super(key: key);
+  final fileurl;
+  Thankyou({ this.fileurl});
 
   @override
   State<Thankyou> createState() => _ThankyouState();
 }
 
 class _ThankyouState extends State<Thankyou> {
+  timeout() async{
+    await Future.delayed(const Duration(seconds: 10), () {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OrderHistory(),
+          ));
+    });
+  }
+  @override
+  void initState() {
+    super.initState();
+    timeout();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +59,7 @@ class _ThankyouState extends State<Thankyou> {
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Text(
-                            "Your order is completed Please Check Your mail for invoice/bill.",
+                            "Your order is completed Please Check Your mail for file/invoice/bill.",
                             style: TextStyle(
                                 fontSize: 16,
                                 color: Color(0xFF3a3a3b),
@@ -76,7 +91,7 @@ class _ThankyouState extends State<Thankyou> {
                             },
                             child: Center(
                               child: Text(
-                                "Home",
+                                "Order History",
                                 style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.white,

@@ -1,6 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:paytm_allinonesdk/paytm_allinonesdk.dart';
 import 'package:printonex_final/views/pages/thankyou.dart';
@@ -9,19 +13,55 @@ import 'package:printonex_final/views/pages/thankyou.dart';
 enum SingingCharacter { cash, online }
 
 class Payment extends StatefulWidget {
-  final userid, price, fileid;
-  Payment({this.userid, this.price, this.fileid});
+  final price, fileurl, product, producturl, address;
+  Payment({ this.price, this.fileurl,required this.product,required this.producturl, required this.address});
   @override
   State<Payment> createState() => _PaymentState();
 }
 
 class _PaymentState extends State<Payment> {
   SingingCharacter? paymentmode = SingingCharacter.cash;
-paymentcheck(amount){
+  var orderid = Random().nextInt(500000);
+
+  orderentry(cash) async {
+    final auth = FirebaseAuth.instance;
+    dynamic user;
+    String userEmail, uid;
+    user = auth.currentUser!;
+    uid = user.uid;
+    userEmail = user.email;
+    FirebaseFirestore.instance.collection('orders').doc('$uid').collection('$uid').add(
+        {
+          'fileurl': widget.fileurl,
+          'orderid': orderid,
+          'product': widget.product,
+          'producturl': widget.producturl,
+          'amount': widget.price,
+          'uid': uid,
+          'email': userEmail,
+          'address': widget.address,
+          'orderAt': FieldValue.serverTimestamp(),
+          'payment_type': cash,
+          'payment_status': 'PENDING',
+          'order_status': 'success',
+          'dileveryon': FieldValue.serverTimestamp(),
+
+        }).then((value) {
+      Get.snackbar('Success', 'Order Submitted',
+          backgroundColor: Colors.greenAccent);
+    });
+  }
+
+paymentcheck(amount) async {
 
 if (paymentmode==SingingCharacter.cash){
-Navigator.of(context).push(MaterialPageRoute(
-builder: (context) => Thankyou()));
+  Navigator.of(context).push(MaterialPageRoute(
+builder: (context) => Thankyou(fileurl: widget.fileurl)));
+  orderentry("cash");
+  // await Future.delayed(const Duration(seconds: 30), () {
+  //   getImage(id);
+  // });
+
 }
 else{
 initiateTransaction(amount);

@@ -630,7 +630,7 @@ class _PrintCustomizerState extends State<PrintCustomizer> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => Checkout()));
+                        builder: (context) => Checkout(price: '', fileurl: '', producturl: '', product: 'PRINTING',)));
 
               },
               child: AppText(

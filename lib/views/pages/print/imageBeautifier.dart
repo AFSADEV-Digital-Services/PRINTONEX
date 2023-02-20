@@ -1,8 +1,13 @@
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -23,9 +28,13 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as path_provider;
+import 'package:printonex_final/views/pages/chat.dart';
+import 'package:printonex_final/views/pages/checkout.dart';
 
 import 'package:printonex_final/views/pages/print/PrintPhoto.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:whatsapp_share/whatsapp_share.dart';
 class ImageBeautifier extends StatefulWidget {
 
   @override
@@ -43,7 +52,9 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
   final List<int> _bytes = [];
   late http.StreamedResponse _response;
   late bool error, showProgress;
-
+  List<String> log = [];
+  final _controller = ScreenshotController();
+  File? _image;
 
 
   @override
@@ -64,7 +75,7 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
     var response = await http.post(Uri.parse(apiUrl), headers: headers, body: data);
     if (response.statusCode == 201) {
       Get.snackbar(
-          'Wait', 'Wait 15 Sec AI is Processing Your Image',
+          'Wait', 'Wait 20-30 Depending on file size Sec AI is Processing Your Image',
           backgroundColor: Colors.orange);
       var jsonData = json.decode(response.body);
       var id = jsonData["id"];
@@ -72,11 +83,15 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
       setState(() {
         currentimgid= id;
       });
-      await Future.delayed(const Duration(seconds: 15), () {
+
+      await Future.delayed(const Duration(seconds: 30), () {
         getImage(id);
       });
     }
     else{
+      setState(() {
+        log.add('Image Inhancher/Error:${response.statusCode}');
+      });
       Get.snackbar(
           'FAIL', 'http.post error: statusCode= ${response.statusCode}',
           backgroundColor: Colors.red);
@@ -86,7 +101,9 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
 
   }
   getImage(id) async {
-    print(id);
+    Get.snackbar(
+        'Wait', 'AI is Inhanching Your Image id: $id',
+        backgroundColor: Colors.orange);
     var headers = {
       'Authorization': 'Token 89021c58b3c579caed1744b6bca680658e107f55',
     };
@@ -95,23 +112,52 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
       var res = await http.get(url, headers: headers);
       if (res.statusCode != 200) throw Exception('http.get error: statusCode= ${res.statusCode}');
       var jsonData = json.decode(res.body);
-      print(jsonData["output"]);
-
-      Get.snackbar(
-          'SUCCESS', 'Successfully Inhanched Image',
-          backgroundColor: Colors.green);
-      Get.snackbar(
-          'SUCCESS', 'If Not Showing Click Refresh From Tolbar',
-          backgroundColor: Colors.green);
+      print(jsonData);
       setState(() {
-        showProgress = false; //don't show progress indicator
-        error = true;
-        outputImage = jsonData["output"];
-        outputImageMirror= jsonData["msg"];
+        log.add(jsonData.toString());
       });
+      await Future.delayed(const Duration(seconds: 5), () {
+      if (jsonData["status"]=='succeeded') {
+
+          Get.snackbar(
+              'SUCCESS', 'Successfully Inhanched Image',
+              backgroundColor: Colors.green);
+          Get.snackbar(
+              'SUCCESS', 'If Not Showing Click Refresh From Tolbar',
+              backgroundColor: Colors.green);
+          setState(() {
+            showProgress = false; //don't show progress indicator
+            error = true;
+            outputImage = jsonData["output"];
+            outputImageMirror = jsonData["msg"];
+          });
+          _download(outputImage.toString());
+
+
+      }else{
+
+        Get.snackbar(
+            'Failed', 'Failed to process Upload Only Low Image,Small Size, and Blur Image',
+            backgroundColor: Colors.redAccent);
+        setState(() {
+          showProgress = false; //don't show progress indicator
+          error = true;
+          imagefile = null;
+          outputImage=null;
+        });
+      }
+      });
+
     }
     catch (e) {
       print(e);
+      setState(() {
+        log.add("Error While Generating Image: $id and error is : $e");
+        imagefile = null;
+        outputImage=null;
+        showProgress = false; //don't show progress indicator
+        error = true;
+      });
     }
 
 
@@ -119,7 +165,14 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
 
 
   }
+
   Future<void> _download(String url) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Checkout(price: '0.30', fileurl: outputImage.toString(), product: 'ImageBeautyfy', producturl: 'https://firebasestorage.googleapis.com/v0/b/printonex-eeff2.appspot.com/o/products%2Fimage_inhancher.png?alt=media&token=8f4198c8-83da-4957-96b6-a2e70d24f086'),
+      ),
+    );
     setState(() {
       downloading = true;
     });
@@ -158,14 +211,30 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
         backgroundColor: Colors.green);
     print("Printonex_${DateTime.now()}");
   }
-  void share() {
-    FlutterShare.share(
+  void share() async {
+    await FlutterShare.share(
         title: 'PRINTONEX APP',
         text: 'Download Our Online App for any Services👇',
         linkUrl: 'https://afsadev.in/Download/PrintoNexOnline.apk '
             'Your Image Can Download From this link 👇'
             '$outputImage',
         chooserTitle: 'PRINTONEX');
+  }
+
+
+
+  void reporterror(List<String> log) async {
+    FlutterShare.share(
+        title: 'PRINTONEX APP',
+        text: 'Has Error Plz Solve Problem👇',
+        linkUrl: '$log',
+        chooserTitle: 'PRINTONEX');
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => Chat("$log"),
+    //   ),
+    // );
   }
 
   @override
@@ -193,7 +262,7 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
           //     });
           //   },
           // ),
-          outputImage!=null?IconButton(
+          currentimgid!=null?IconButton(
             icon: const Icon(Icons.refresh, color: Colors.red),
             onPressed: () {
               setState(() {
@@ -201,10 +270,8 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
                 showProgress = true;
               });
             },
-          ): Container(
-
-                ),
-          outputImage!=null?IconButton(
+          ):Container(),
+          imagefile!=null?IconButton(
             icon: const Icon(Icons.format_paint, color: Colors.pinkAccent),
             onPressed: () {
               setState(() {
@@ -213,18 +280,17 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
                 showProgress = true;
               });
             },
-          ): Container(
-
+          ):
+            Container(),
+          IconButton(
+            onPressed: () {
+              _awaitReturnValueFromSecondScreen(context);
+            },
+            icon: const Icon(
+              Icons.add_a_photo,
+              color: Colors.black87,
+            ),
           ),
-            IconButton(
-              onPressed: () {
-                _awaitReturnValueFromSecondScreen(context);
-              },
-              icon: const Icon(
-                Icons.add_a_photo,
-                color: Colors.black87,
-              ),
-            )
 
         ],
       ),
@@ -235,18 +301,31 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
             height: ResponsiveFile.screenHeight,
             color: Colors.black87,
             child: imagefile!=null?
-            outputImage != null
-                ? BeforeAfter(
-              beforeImage: Image.network(
-                imagefile.toString(),
+
+                BeforeAfter(
+              beforeImage: CachedNetworkImage(
+                imageUrl: imagefile.toString(),
+                fit: BoxFit.fill,
+                errorWidget: (context, url, error) =>
+                const Icon(
+                  Icons.account_circle,
+                  color: Colors.white,
+                  size: 120,
+                ),
               ),
-              afterImage: Image.network(
-                outputImage.toString(),
+              afterImage: CachedNetworkImage(
+                imageUrl: outputImage.toString(),
+                fit: BoxFit.fill,
+                errorWidget: (context, url, error) =>
+                const Icon(
+                  Icons.account_circle,
+                  color: Colors.white,
+                  size: 120,
+                ),
               ),
             )
-                : Image.network(
-              imagefile.toString()
-            ):Center(
+
+            :Center(
 
                 child: InkWell(
                   onTap: (){
@@ -331,6 +410,37 @@ class _ImageBeautifierState extends State<ImageBeautifier> {
               ),
             ),
           ): Container(),
+          log.isEmpty?Container():Positioned(
+            bottom: 80,
+            right: 10,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  primary: Colors.orangeAccent,
+                  onPrimary: Colors.white,
+                  shape: const RoundedRectangleBorder(
+                      borderRadius:
+                      BorderRadius.all(const Radius.circular(20)))),
+              onPressed: () {
+              reporterror(log);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  children: [
+                    AppText(
+                      text: "Report Error",
+                      fontWeight: FontWeight.bold,
+                      size: ResponsiveFile.font16,
+                    ),
+                    SizedBox(
+                      width: ResponsiveFile.height10,
+                    ),
+                    const Icon(Icons.share)
+                  ],
+                ),
+              ),
+            ),
+          ),
           outputImage != null?Positioned(
             bottom: 10,
             right: 10,

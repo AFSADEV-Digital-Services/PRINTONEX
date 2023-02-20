@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 class OrderHistory extends StatefulWidget {
   const OrderHistory({Key? key}) : super(key: key);
 
@@ -13,6 +16,7 @@ class Item {
   final String paymentType;
   final String address;
   final String cancelOder;
+  final String payment_status;
 
   Item(
       {required this.name,
@@ -21,7 +25,9 @@ class Item {
         required this.oderAmount,
         required this.paymentType,
         required this.address,
-        required this.cancelOder});
+        required this.cancelOder,
+        required this.payment_status
+      });
 }
 class _OrderHistoryState extends State<OrderHistory>  {
   List list = ['12', '11'];
@@ -29,49 +35,42 @@ class _OrderHistoryState extends State<OrderHistory>  {
   bool checkboxValueB = false;
   bool checkboxValueC = false;
   late VoidCallback _showBottomSheetCallback;
-  List<Item> itemList = <Item>[
-    Item(
-        name: 'Jhone Miller',
-        deliveryTime: '26-5-2106',
-        oderId: '#CN23656',
-        oderAmount: '\₹ 650',
-        paymentType: 'online',
-        address: '1338 Karen Lane,Louisville,Kentucky',
-        cancelOder: 'Cancel Order'),
-    Item(
-        name: 'Gautam Dass',
-        deliveryTime: '10-8-2106',
-        oderId: '#CN33568',
-        oderAmount: '\₹ 900',
-        paymentType: 'COD',
-        address: '319 Alexander Drive,Ponder,Texas',
-        cancelOder: 'View Receipt'),
-    Item(
-        name: 'Jhone Hill',
-        deliveryTime: '23-3-2107',
-        oderId: '#CN75695',
-        oderAmount: '\₹ 250',
-        paymentType: 'online',
-        address: '92 Jarvis Street,Buffalo, York',
-        cancelOder: 'View Receipt'),
-    Item(
-        name: 'Miller Root',
-        deliveryTime: '10-5-2107',
-        oderId: '#CN45238',
-        oderAmount: '\₹ 500',
-        paymentType: 'Bhim/upi',
-        address: '103 Romrog Way,Grand Island,Nebraska',
-        cancelOder: 'Cancel Order'),
-    Item(
-        name: 'Lag Gilli',
-        deliveryTime: '26-10-2107',
-        oderId: '#CN69532',
-        oderAmount: '\₹ 1120',
-        paymentType: 'online',
-        address: '8 Clarksburg Park,Marble Canyon,Arizona',
-        cancelOder: 'View Receipt'),
-  ];
 
+  getData() async {
+    print("Taped---------------");
+    final auth = FirebaseAuth.instance;
+    dynamic user;
+    String userEmail, uid;
+    user = auth.currentUser!;
+    uid = user.uid;
+    QuerySnapshot bannersRef =
+    await FirebaseFirestore.instance.collection('orders').doc('$uid').collection('$uid').get();
+    setState(() {
+      for (int g = 0; g < bannersRef.docs.length; g++) {
+        itemList.add(
+            Item(
+                name: bannersRef.docs[g]["email"].toString(),
+                deliveryTime: bannersRef.docs[g]["dileveryon"].toString(),
+                oderId: bannersRef.docs[g]["orderid"].toString(),
+                oderAmount: bannersRef.docs[g]["amount"].toString(),
+                paymentType: bannersRef.docs[g]["payment_type"].toString(),
+                payment_status: bannersRef.docs[g]["payment_status"].toString(),
+                address: bannersRef.docs[g]["address"].toString(),
+                cancelOder: bannersRef.docs[g]["order_status"].toString()),
+          );
+      }
+    });
+    print(itemList.toString());
+    return bannersRef.docs;
+
+  }
+
+  List<Item> itemList = <Item>[];
+  @override
+  void initState() {
+    super.initState();
+    getData();
+  }
   // String toolbarname = 'Fruiys & Vegetables';
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -113,8 +112,10 @@ class _OrderHistoryState extends State<OrderHistory>  {
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
               child: IconButton(
-                icon: Icon(Icons.notifications_none, color: Color(0xFF545D68)),
-                onPressed: () {},
+                icon: Icon(Icons.refresh, color: Color(0xFF545D68)),
+                onPressed: () {
+                  getData();
+                },
               ),
             ),
           ],
@@ -156,8 +157,8 @@ class _OrderHistoryState extends State<OrderHistory>  {
                                         Container(
                                           alignment: Alignment.topLeft,
                                           child: Text(
-                                            'To Deliver On :' +
-                                                itemList[ind].deliveryTime,
+                                            'To Deliver On :'
+                                             ,
                                             style: TextStyle(
                                                 fontSize: 13.0, color: Colors.black54),
                                           ),
@@ -187,7 +188,7 @@ class _OrderHistoryState extends State<OrderHistory>  {
                                                     Container(
                                                       margin: EdgeInsets.only(top: 3.0),
                                                       child: Text(
-                                                        itemList[ind].oderId,
+                                                        '#'+itemList[ind].oderId,
                                                         style: TextStyle(
                                                             fontSize: 15.0,
                                                             color: Colors.black87),
@@ -210,7 +211,30 @@ class _OrderHistoryState extends State<OrderHistory>  {
                                                     Container(
                                                       margin: EdgeInsets.only(top: 3.0),
                                                       child: Text(
-                                                        itemList[ind].oderAmount,
+                                                        '₹ '+itemList[ind].oderAmount,
+                                                        style: TextStyle(
+                                                            fontSize: 15.0,
+                                                            color: Colors.black87),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )),
+                                            Container(
+                                                padding: EdgeInsets.all(3.0),
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                                  children: <Widget>[
+                                                    Text(
+                                                      'Payment Status',
+                                                      style: TextStyle(
+                                                          fontSize: 13.0,
+                                                          color: Colors.black54),
+                                                    ),
+                                                    Container(
+                                                      margin: EdgeInsets.only(top: 3.0),
+                                                      child: Text(
+                                                        itemList[ind].payment_status,
                                                         style: TextStyle(
                                                             fontSize: 15.0,
                                                             color: Colors.black87),
